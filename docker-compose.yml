@@ -1,0 +1,35 @@
+services:
+  # Banco de dados Northwind 
+  source_db:
+    image: postgres:12
+    container_name: source_db
+    restart: always
+    environment:
+        POSTGRES_DB: northwind
+        POSTGRES_USER: northwind_user
+        POSTGRES_PASSWORD: thewindisblowing
+    volumes:
+      - ./data/raw/northwind.sql:/docker-entrypoint-initdb.d/northwind.sql
+    ports:
+      - 5432:5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U northwind_user -d northwind"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Banco de dados destino 
+  target_db:
+    image: postgres:12
+    container_name: target_db
+    environment:
+      POSTGRES_DB: northwind_target
+      POSTGRES_USER: target_user
+      POSTGRES_PASSWORD: thewindkeepsblowing
+    ports:
+      - 5433:5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U target_user -d northwind_target"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
